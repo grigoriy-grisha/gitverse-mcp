@@ -3,12 +3,9 @@ import { basename } from 'node:path';
 
 import type { ToolSpec } from './types.js';
 
-/** Error thrown for any non-2xx GitVerse API response. */
 export class GitVerseApiError extends Error {
   readonly status: number;
-  /** Machine-readable error code from the API envelope, e.g. `VALIDATION_ERROR`. */
   readonly code: string;
-  /** Raw response body when it could not be parsed into the standard envelope. */
   readonly body?: string;
 
   constructor(status: number, code: string, message: string, body?: string) {
@@ -21,15 +18,10 @@ export class GitVerseApiError extends Error {
 }
 
 export interface GitVerseClientOptions {
-  /** Personal access token; sent as `Authorization: Bearer <token>`. */
   token?: string;
-  /** Defaults to https://api.gitverse.ru. */
   baseUrl?: string;
-  /** Value of the vendor media type version, defaults to `1`. */
   apiVersion?: string;
-  /** Retries for HTTP 429 responses, defaults to 3. */
   maxRetries?: number;
-  /** Upper bound for a single 429 backoff sleep in ms, defaults to 30 000. */
   maxRetryDelayMs?: number;
   fetchImpl?: typeof fetch;
 }
@@ -61,10 +53,6 @@ export class GitVerseClient {
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
-  /**
-   * Executes one API operation. `args` are the parsed tool arguments (flat);
-   * path/query/body/file roles are derived from the tool spec.
-   */
   async request(spec: RequestSpecPick, args: Record<string, unknown>): Promise<unknown> {
     const pathParams = extractPathParams(spec.path);
     const bodyArgNames = new Set(spec.bodyFields.map(([argName]) => argName));

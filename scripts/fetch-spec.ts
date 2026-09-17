@@ -1,10 +1,3 @@
-/**
- * Downloads the official GitVerse public API OpenAPI specification into spec/openapi.json.
- *
- * The spec lives in the public repo gitverse/rest-api-description on gitverse.ru.
- * The contents endpoint returns either a raw JSON document or a base64 envelope
- * depending on the gateway mood — both are handled here.
- */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

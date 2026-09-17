@@ -1,7 +1,3 @@
-// GENERATED FILE — do not edit manually.
-// Source: spec/openapi.json (GitVerse Public API 1.10.0).
-// Regenerate with: npm run generate
-
 import { z } from 'zod';
 
 import type { SpecInfo, ToolSpec } from '../types.js';

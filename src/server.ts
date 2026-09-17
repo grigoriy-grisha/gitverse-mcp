@@ -7,9 +7,7 @@ import { SERVER_NAME, SERVER_VERSION } from './version.js';
 
 export interface ServerOptions {
   client: GitVerseClient;
-  /** Allowlist of tool names; all tools when omitted. */
   include?: readonly string[];
-  /** Denylist of tool names, applied after `include`. */
   exclude?: readonly string[];
 }
 

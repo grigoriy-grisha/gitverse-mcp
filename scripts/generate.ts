@@ -1,12 +1,3 @@
-/**
- * Generates src/generated/tools.ts from spec/openapi.json.
- *
- * The official GitVerse spec is Swagger 2.0 without operationIds, so tool names are
- * derived from METHOD + path. Request bodies are flattened: body properties become
- * top-level tool arguments, and `bodyFields` records which ones travel back in the
- * JSON body. File-upload operations (formData) take `attachment_path` or
- * `attachment_base64` instead.
- */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,10 +52,6 @@ function isOperation(value: unknown): value is Operation {
   return typeof value === 'object' && value !== null && ('responses' in value || 'parameters' in value || 'summary' in value);
 }
 
-// ---------------------------------------------------------------------------
-// Naming
-// ---------------------------------------------------------------------------
-
 function baseName(method: HttpMethod, path: string): string {
   const withoutParams = path.replace(/\{[^}]+\}/g, '');
   const cleaned = withoutParams
@@ -81,7 +68,6 @@ function lastPathParam(path: string): string {
   return name.replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase();
 }
 
-/** Resolves list-vs-item name collisions (e.g. /branches and /branches/{branch}). */
 function assignNames(
   ops: Array<{ method: HttpMethod; path: string }>,
 ): Map<number, string> {
@@ -111,10 +97,6 @@ function assignNames(
   }
   return names;
 }
-
-// ---------------------------------------------------------------------------
-// Zod expression building
-// ---------------------------------------------------------------------------
 
 class ZodEmitter {
   constructor(private readonly definitions: Record<string, SchemaObject>) {}
@@ -205,10 +187,6 @@ function paramExpression(param: Param, emitter: ZodEmitter): string {
   return expr;
 }
 
-// ---------------------------------------------------------------------------
-// Description building
-// ---------------------------------------------------------------------------
-
 function buildDescription(method: HttpMethod, path: string, op: Operation): string {
   const parts: string[] = [];
   const tag = op.tags?.[0];
@@ -229,10 +207,6 @@ function buildDescription(method: HttpMethod, path: string, op: Operation): stri
   const description = parts.join('\n');
   return description.length > 1200 ? description.slice(0, 1197) + '...' : description;
 }
-
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
 
 function main(): void {
   const specPath = join(root, 'spec', 'openapi.json');
@@ -277,8 +251,6 @@ function main(): void {
     }
   });
 
-  // Body flattening must not collide with path/query argument names —
-  // colliding body properties get a `body_` prefix instead.
   for (const flat of flats) {
     if (!flat.bodyParam) continue;
     buildBodyArgsMapping(flat.bodyParam, flat.pathParams, flat.queryParams, spec.definitions);
@@ -326,11 +298,7 @@ function main(): void {
     return lines.join('\n');
   });
 
-  const out = `// GENERATED FILE — do not edit manually.
-// Source: spec/openapi.json (GitVerse Public API ${spec.info.version}).
-// Regenerate with: npm run generate
-
-import { z } from 'zod';
+  const out = `import { z } from 'zod';
 
 import type { SpecInfo, ToolSpec } from '../types.js';
 
@@ -350,7 +318,6 @@ ${chunks.join(',\n')},
   console.log(`generated ${flats.length} tools -> src/generated/tools.ts`);
 }
 
-/** Property names of the request-body object (or ['body'] when it is a free-form value). */
 function flattenBodyProps(bodyParam: Param, definitions: Record<string, SchemaObject>): string[] {
   const schema = bodyParam.schema ?? {};
   const ref = schema.$ref?.replace(/^#\/definitions\//, '');
@@ -360,11 +327,6 @@ function flattenBodyProps(bodyParam: Param, definitions: Record<string, SchemaOb
   return Object.keys(props);
 }
 
-/**
- * Builds `[toolArgName, bodyKey]` pairs for a request body. Body properties whose
- * names clash with path/query arguments are exposed as `body_<name>` tool arguments
- * while still mapping back to the original body key.
- */
 function buildBodyArgsMapping(
   bodyParam: Param,
   pathParams: Param[],
@@ -378,7 +340,6 @@ function buildBodyArgsMapping(
   ]);
 }
 
-/** Zod entries for a flattened body: one argument per body property. */
 function bodyArgEntries(
   bodyParam: Param,
   pathParams: Param[],

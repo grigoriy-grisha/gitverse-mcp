@@ -28,6 +28,7 @@ async function main(): Promise<void> {
 
   const server = createGitVerseServer({
     client,
+    profiles: listFromEnv('GITVERSE_PROFILE'),
     include: listFromEnv('GITVERSE_TOOLS'),
     exclude: listFromEnv('GITVERSE_EXCLUDE_TOOLS'),
   });

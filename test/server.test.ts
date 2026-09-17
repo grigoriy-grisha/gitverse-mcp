@@ -4,7 +4,7 @@ import { vi, afterEach, describe, expect, it } from 'vitest';
 
 import { GitVerseClient } from '../src/client.js';
 import { toolSpecs } from '../src/generated/tools.js';
-import { createGitVerseServer, filterTools } from '../src/server.js';
+import { createGitVerseServer, filterTools, PROFILES } from '../src/server.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -100,16 +100,13 @@ describe('gitverse MCP server', () => {
 });
 
 describe('filterTools', () => {
-  const client = new GitVerseClient({});
-
   it('applies the include allowlist', () => {
-    const filtered = filterTools(toolSpecs, { client, include: ['get_repos', 'get_user'] });
+    const filtered = filterTools(toolSpecs, { include: ['get_repos', 'get_user'] });
     expect(filtered.map((t) => t.name)).toEqual(['get_repos', 'get_user']);
   });
 
   it('applies the exclude denylist after include', () => {
     const filtered = filterTools(toolSpecs, {
-      client,
       include: ['get_repos', 'get_user'],
       exclude: ['get_user'],
     });
@@ -117,7 +114,41 @@ describe('filterTools', () => {
   });
 
   it('keeps everything without filters', () => {
-    expect(filterTools(toolSpecs, { client })).toHaveLength(toolSpecs.length);
+    expect(filterTools(toolSpecs, {})).toHaveLength(toolSpecs.length);
   });
-}
-);
+
+  it('expands the pr profile to existing tools only', () => {
+    for (const name of PROFILES.pr) {
+      expect(
+        toolSpecs.find((t) => t.name === name),
+        `profile tool ${name} must exist in generated specs`,
+      ).toBeDefined();
+    }
+
+    const filtered = filterTools(toolSpecs, { profiles: ['pr'] });
+    expect(filtered).toHaveLength(PROFILES.pr.length);
+    expect(new Set(filtered.map((t) => t.name))).toEqual(new Set(PROFILES.pr));
+  });
+
+  it('lets include override profiles', () => {
+    const filtered = filterTools(toolSpecs, { profiles: ['pr'], include: ['get_user'] });
+    expect(filtered.map((t) => t.name)).toEqual(['get_user']);
+  });
+
+  it('rejects unknown profiles', () => {
+    expect(() => filterTools(toolSpecs, { profiles: ['nope'] })).toThrow(/Unknown tool profile/);
+  });
+
+  it('covers the review workflow end to end', () => {
+    const pr = new Set(PROFILES.pr);
+    for (const name of [
+      'get_repos_pulls',
+      'get_repos_pulls_files',
+      'post_repos_pulls_comments',
+      'post_repos_pulls_reviews',
+      'patch_repos_issues',
+    ]) {
+      expect(pr.has(name), `${name} must be in the pr profile`).toBe(true);
+    }
+  });
+});

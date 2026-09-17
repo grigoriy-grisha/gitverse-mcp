@@ -79,8 +79,35 @@ npm install -g gitverse-mcp-server
 | `GITVERSE_TOKEN` | — | Персональный токен GitVerse (обязателен для реального API) |
 | `GITVERSE_BASE_URL` | `https://api.gitverse.ru` | База API (можно указать мок-сервер) |
 | `GITVERSE_API_VERSION` | `1` | Версия вендорного media type |
+| `GITVERSE_PROFILE` | — | Встроенный профиль инструментов: `pr` (ревью и работа с PR) |
 | `GITVERSE_TOOLS` | — | Список имён инструментов через запятую (allowlist) |
 | `GITVERSE_EXCLUDE_TOOLS` | — | Список имён инструментов через запятую (denylist) |
+
+Приоритет фильтров: `GITVERSE_TOOLS` → `GITVERSE_PROFILE` → все тула; `GITVERSE_EXCLUDE_TOOLS` применяется поверх любого варианта.
+
+## Профиль `pr` — ревью и работа с pull request'ами
+
+```json
+{
+  "mcpServers": {
+    "gitverse": {
+      "command": "npx",
+      "args": ["-y", "gitverse-mcp-server"],
+      "env": {
+        "GITVERSE_TOKEN": "<ваш_токен>",
+        "GITVERSE_PROFILE": "pr"
+      }
+    }
+  }
+}
+```
+
+23 инструмента, закрыт весь цикл code review:
+
+- **Чтение**: карточка репозитория и файлы (`get_repos`, `get_repos_contents`), список/карточка PR (`get_repos_pulls`, `get_repos_pulls_pull_number`), коммиты и изменённые файлы PR (`get_repos_pulls_commits`, `get_repos_pulls_files`), сравнение веток (`get_repos_compare`), статусы лейблов (`get_repos_labels`).
+- **Ревью**: инлайн-комментарии к диффу (`post_repos_pulls_comments`), ревью целиком с вердиктом `APPROVED` / `REQUEST_CHANGES` / `COMMENT` (`get/post_repos_pulls_reviews`, отправка pending-ревью через `post_repos_pulls_reviews_events`), обсуждение в PR (`get/post/patch_repos_issues_comments` — PR является issue).
+- **Управление PR**: создание и правка (`post_repos_pulls`, `patch_repos_pulls` — title/body/state/base), обновление ветки из base (`put_repos_pulls_update_branch`), проверка смерженности (`get_repos_pulls_merge`).
+- **Автор(ы) и лейблы**: `patch_repos_issues` принимает `assignees` и `labels` — PR в API GitVerse является issue, поэтому назначение исполнителей, снятие, метки и смена state идут через него (`index` = номер PR).
 
 ## Примеры работы / Usage examples
 

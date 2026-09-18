@@ -5,6 +5,13 @@ import { GitVerseClient } from './client.js';
 import { createGitVerseServer } from './server.js';
 
 async function main(): Promise<void> {
+  if (typeof globalThis.fetch !== 'function') {
+    console.error(
+      `gitverse-mcp requires Node.js >= 20 (global fetch is missing), but process runs on ${process.version}`,
+    );
+    process.exit(1);
+  }
+
   const token = process.env['GITVERSE_TOKEN'];
   if (!token) {
     console.error('gitverse-mcp: GITVERSE_TOKEN is not set — API calls will fail with 401');

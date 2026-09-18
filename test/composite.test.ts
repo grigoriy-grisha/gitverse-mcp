@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { GitVerseClient } from '../src/client.js';
 import { compositeToolNames, compositeTools } from '../src/composite.js';
-import { toolSpecs } from '../src/generated/tools.js';
-import { filterTools, PROFILES } from '../src/server.js';
 
 interface Call {
   method: string;
@@ -46,17 +44,6 @@ describe('composite tools', () => {
     for (const name of compositeToolNames) {
       expect(name).toMatch(/^[a-zA-Z][a-zA-Z0-9_]*$/);
     }
-  });
-
-  it('bitbucket profile resolves to existing tools only', () => {
-    for (const name of PROFILES.bitbucket) {
-      expect(
-        compositeTools.find((t) => t.name === name) ?? toolSpecs.find((t) => t.name === name),
-        `bitbucket profile tool ${name} must exist`,
-      ).toBeDefined();
-    }
-    const filtered = filterTools([...toolSpecs, ...compositeTools], { profiles: ['bitbucket'] });
-    expect(filtered).toHaveLength(PROFILES.bitbucket.length);
   });
 
   it('approvePullRequest submits an APPROVED review', async () => {

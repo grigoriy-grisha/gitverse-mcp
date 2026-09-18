@@ -1,7 +1,7 @@
 {
   "name": "gitverse-mcp-server",
   "version": "1.0.0",
-  "description": "Model Context Protocol (MCP) server covering the full GitVerse public REST API — all endpoints generated from the official OpenAPI specification",
+  "description": "MCP server exposing Bitbucket-style tools for GitVerse: repositories, pull requests, reviews, comments and CI",
   "type": "module",
   "license": "MIT",
   "author": "grisha123",
@@ -19,8 +19,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "fetch-spec": "tsx scripts/fetch-spec.ts",
-    "generate": "tsx scripts/generate.ts",
     "build": "tsc -p tsconfig.build.json",
     "prepack": "npm run build",
     "test": "vitest run",
@@ -34,8 +32,9 @@
     "gitverse",
     "gitverse-api",
     "mcp-server",
-    "rest-api",
-    "openapi",
+    "bitbucket",
+    "pull-requests",
+    "code-review",
     "llm",
     "ai"
   ],

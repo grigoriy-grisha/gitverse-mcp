@@ -1,7 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { basename } from 'node:path';
-
-import type { HttpMethod, ToolSpec } from './types.js';
+import type { HttpMethod } from './types.js';
 
 export class GitVerseApiError extends Error {
   readonly status: number;
@@ -26,15 +23,12 @@ export interface GitVerseClientOptions {
   fetchImpl?: typeof fetch;
 }
 
-interface RequestSpecPick {
-  method: ToolSpec['method'];
+export interface RawRequest {
+  method: HttpMethod;
   path: string;
-  bodyFields: ToolSpec['bodyFields'];
-  fileUpload: boolean;
+  query?: Record<string, unknown>;
+  body?: unknown;
 }
-
-const PATH_PARAM_RE = /\{([^}]+)\}/g;
-const FILE_ARG_NAMES = new Set(['attachment_path', 'attachment_base64', 'filename']);
 
 export class GitVerseClient {
   private readonly token?: string;
@@ -53,55 +47,7 @@ export class GitVerseClient {
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
-  async request(spec: RequestSpecPick, args: Record<string, unknown>): Promise<unknown> {
-    const pathParams = extractPathParams(spec.path);
-    const bodyArgNames = new Set(spec.bodyFields.map(([argName]) => argName));
-
-    const path = spec.path.replace(PATH_PARAM_RE, (_, name: string) => {
-      const value = args[name];
-      if (value === undefined || value === null) {
-        throw new Error(`Missing path parameter '${name}' for ${spec.method} ${spec.path}`);
-      }
-      return encodeURIComponent(String(value));
-    });
-
-    const query = new URLSearchParams();
-    for (const [name, value] of Object.entries(args)) {
-      if (value === undefined) continue;
-      if (pathParams.has(name) || bodyArgNames.has(name)) continue;
-      if (spec.fileUpload && FILE_ARG_NAMES.has(name)) continue;
-      query.set(name, encodeQueryValue(value));
-    }
-
-    const url = `${this.baseUrl}${path}${query.size > 0 ? `?${query}` : ''}`;
-
-    const init: RequestInit = {
-      method: spec.method,
-      headers: this.baseHeaders(),
-    };
-
-    if (spec.fileUpload) {
-      init.body = await this.buildFormData(args);
-    } else if (spec.bodyFields.length > 0) {
-      const body: Record<string, unknown> = {};
-      for (const [argName, bodyKey] of spec.bodyFields) {
-        const value = args[argName];
-        if (value !== undefined) body[bodyKey] = value;
-      }
-      init.headers = { ...init.headers, 'Content-Type': 'application/json' };
-      init.body = JSON.stringify(body);
-    }
-
-    return this.send(url, init);
-  }
-
-  /** Low-level call for composite tools: explicit path, query and JSON body. */
-  async requestRaw(params: {
-    method: HttpMethod;
-    path: string;
-    query?: Record<string, unknown>;
-    body?: unknown;
-  }): Promise<unknown> {
+  async requestRaw(params: RawRequest): Promise<unknown> {
     const query = new URLSearchParams();
     for (const [name, value] of Object.entries(params.query ?? {})) {
       if (value === undefined) continue;
@@ -123,27 +69,6 @@ export class GitVerseClient {
     };
     if (this.token) headers.Authorization = `Bearer ${this.token}`;
     return headers;
-  }
-
-  private async buildFormData(args: Record<string, unknown>): Promise<FormData> {
-    let base64: string | undefined;
-    let filename: string | undefined;
-
-    if (typeof args['attachment_path'] === 'string' && args['attachment_path'].length > 0) {
-      const filePath = args['attachment_path'];
-      base64 = (await readFile(filePath)).toString('base64');
-      filename = typeof args['filename'] === 'string' ? args['filename'] : basename(filePath);
-    } else if (typeof args['attachment_base64'] === 'string' && args['attachment_base64'].length > 0) {
-      base64 = args['attachment_base64'];
-      filename = typeof args['filename'] === 'string' ? args['filename'] : 'attachment';
-    } else {
-      throw new Error('File upload requires either attachment_path or attachment_base64');
-    }
-
-    const bytes = Buffer.from(base64, 'base64');
-    const form = new FormData();
-    form.append('attachment', new Blob([new Uint8Array(bytes)]), filename);
-    return form;
   }
 
   private async send(url: string, init: RequestInit, attempt = 0): Promise<unknown> {
@@ -171,14 +96,6 @@ export class GitVerseClient {
       return text;
     }
   }
-}
-
-function extractPathParams(template: string): Set<string> {
-  const names = new Set<string>();
-  for (const match of template.matchAll(PATH_PARAM_RE)) {
-    names.add(match[1] ?? '');
-  }
-  return names;
 }
 
 function encodeQueryValue(value: unknown): string {

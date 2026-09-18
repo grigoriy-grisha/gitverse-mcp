@@ -4,16 +4,6 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { GitVerseClient } from './client.js';
 import { createGitVerseServer } from './server.js';
 
-function listFromEnv(name: string): string[] | undefined {
-  const raw = process.env[name];
-  if (!raw) return undefined;
-  const items = raw
-    .split(',')
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0);
-  return items.length > 0 ? items : undefined;
-}
-
 async function main(): Promise<void> {
   const token = process.env['GITVERSE_TOKEN'];
   if (!token) {
@@ -26,12 +16,7 @@ async function main(): Promise<void> {
     apiVersion: process.env['GITVERSE_API_VERSION'],
   });
 
-  const server = createGitVerseServer({
-    client,
-    profiles: listFromEnv('GITVERSE_PROFILE'),
-    include: listFromEnv('GITVERSE_TOOLS'),
-    exclude: listFromEnv('GITVERSE_EXCLUDE_TOOLS'),
-  });
+  const server = createGitVerseServer({ client });
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

@@ -10,7 +10,7 @@ MCP-сервер (Model Context Protocol) для работы с GitVerse — р
 [![npm version](https://badge.fury.io/js/%40grigoriy-grisha%2Fgitverse-mcp.svg)](https://www.npmjs.com/package/@grigoriy-grisha/gitverse-mcp)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-gitverse--mcp-blue.svg)](https://github.com/grigoriy-grisha/gitverse-mcp)
 
-## ✨ Обзор
+## Обзор
 
 Сервер реализует стандарт Model Context Protocol и предоставляет инструменты для:
 
@@ -22,7 +22,7 @@ MCP-сервер (Model Context Protocol) для работы с GitVerse — р
 
 Все операции выполняются через официальный [публичный REST API GitVerse](https://gitverse.ru/docs/developers/public-api): заголовки `Authorization: Bearer` и вендорный `Accept: application/vnd.gitverse.object+json; version=1` выставляются автоматически, ответы 429 автоматически повторяются с учётом `Retry-After`.
 
-### 🧰 Инструменты на одном экране
+### Инструменты на одном экране
 
 | Группа | Инструменты |
 | --- | --- |
@@ -32,7 +32,7 @@ MCP-сервер (Model Context Protocol) для работы с GitVerse — р
 | **Комментарии** | `getPullRequestComments` · `addPullRequestComment` · `updatePullRequestComment` · `deletePullRequestComment` |
 | **CI (Actions)** | `listPipelineRuns` · `getPipelineRun` · `runPipeline` · `getPipelineSteps` · `getPipelineStep` · `getPipelineStepLogs` |
 
-## 🚀 Установка
+## Установка
 
 ### Через NPX (рекомендуется)
 
@@ -66,7 +66,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
 
 Требуется **Node.js 20 или выше**.
 
-## ⚙️ Настройка
+## Настройка
 
 ### Переменные окружения
 
@@ -88,7 +88,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
 
 Подробности — в [документации по токенам](https://gitverse.ru/docs/collaborative/authentification/tokens).
 
-## 🔌 Интеграция с клиентами
+## Интеграция с клиентами
 
 ### ZCode
 
@@ -155,7 +155,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
 }
 ```
 
-## 🩺 Устранение неполадок
+## Устранение неполадок
 
 ### Ошибки 401 Unauthorized
 
@@ -177,7 +177,7 @@ API GitVerse ограничивает **2000 запросов в час** на �
 
 Проверьте, что токен передаётся вместе с вендорным заголовком `Accept: application/vnd.gitverse.object+json; version=1` — без него шлюз GitVerse отвечает 400. При работе через этот MCP-сервер заголовок ставится автоматически, ошибка возникает только при ручных curl-проверках.
 
-## 🔧 Доступные инструменты
+## Доступные инструменты
 
 Сервер предоставляет 25 инструментов для работы с репозиториями, PR и CI. Полный список по группам:
 
@@ -486,7 +486,7 @@ CI-раны GitVerse Actions — аналог Bitbucket Pipelines.
 - `owner`, `repo`
 - `job_id`: id джобы
 
-## ⚠️ Ограничения
+## Ограничения
 
 Часть возможностей Bitbucket в публичном API GitVerse отсутствует, поэтому соответствующих тулов нет:
 
@@ -498,7 +498,7 @@ CI-раны GitVerse Actions — аналог Bitbucket Pipelines.
 - **остановка CI-рана** (cancel отсутствует)
 - **commit statuses** — вместо них используйте `listPipelineRuns` с фильтром по ветке
 
-## 🛠 Разработка
+## Разработка
 
 ### Требования
 
@@ -535,11 +535,11 @@ src/index.ts       stdio-транспорт, env-конфигурация
 test/              vitest: клиент, тулы, e2e по InMemoryTransport
 ```
 
-## 📄 Лицензия
+## Лицензия
 
 Проект распространяется по лицензии MIT — подробности в файле [LICENSE](LICENSE).
 
-## 🔗 Ссылки
+## Ссылки
 
 - [GitHub-репозиторий](https://github.com/grigoriy-grisha/gitverse-mcp)
 - [npm-пакет](https://www.npmjs.com/package/gitverse-mcp)

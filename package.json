@@ -1,6 +1,6 @@
 {
   "name": "@grigoriy-grisha/gitverse-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for GitVerse: repositories, pull requests, reviews, comments and CI",
   "type": "module",
   "license": "MIT",

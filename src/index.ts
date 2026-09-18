@@ -7,7 +7,7 @@ import { createGitVerseServer } from './server.js';
 async function main(): Promise<void> {
   const token = process.env['GITVERSE_TOKEN'];
   if (!token) {
-    console.error('gitverse-mcp-server: GITVERSE_TOKEN is not set — API calls will fail with 401');
+    console.error('gitverse-mcp: GITVERSE_TOKEN is not set — API calls will fail with 401');
   }
 
   const client = new GitVerseClient({
@@ -20,10 +20,10 @@ async function main(): Promise<void> {
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('gitverse-mcp-server: connected over stdio');
+  console.error('gitverse-mcp: connected over stdio');
 }
 
 main().catch((error: unknown) => {
-  console.error('gitverse-mcp-server: fatal:', error instanceof Error ? error.message : error);
+  console.error('gitverse-mcp: fatal:', error instanceof Error ? error.message : error);
   process.exit(1);
 });

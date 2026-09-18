@@ -99,7 +99,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
   "mcpServers": {
     "gitverse": {
       "command": "npx",
-      "args": ["-y", "gitverse-mcp-server@latest"],
+      "args": ["-y", "@grigoriy-grisha/gitverse-mcp@latest"],
       "env": {
         "GITVERSE_TOKEN": "ваш-токен"
       }
@@ -117,7 +117,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
   "mcpServers": {
     "gitverse": {
       "command": "npx",
-      "args": ["-y", "gitverse-mcp-server@latest"],
+      "args": ["-y", "@grigoriy-grisha/gitverse-mcp@latest"],
       "env": {
         "GITVERSE_TOKEN": "ваш-токен"
       }
@@ -137,7 +137,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
   "env": {
     "GITVERSE_TOKEN": "ваш-токен"
   },
-  "args": ["-y", "gitverse-mcp-server@latest"]
+  "args": ["-y", "@grigoriy-grisha/gitverse-mcp@latest"]
 }
 ```
 
@@ -151,7 +151,7 @@ GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
   "env": {
     "GITVERSE_TOKEN": "ваш-токен"
   },
-  "args": ["/путь/к/gitverse-mcp-server/dist/index.js"]
+  "args": ["/путь/к/gitverse-mcp/dist/index.js"]
 }
 ```
 
@@ -510,7 +510,7 @@ CI-раны GitVerse Actions — аналог Bitbucket Pipelines.
 ```bash
 # Клонировать репозиторий
 git clone <repo-url>
-cd gitverse-mcp-server
+cd gitverse-mcp
 
 # Установить зависимости
 npm install

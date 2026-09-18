@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 
-import type { ToolSpec } from './types.js';
+import type { HttpMethod, ToolSpec } from './types.js';
 
 export class GitVerseApiError extends Error {
   readonly status: number;
@@ -92,6 +92,28 @@ export class GitVerseClient {
       init.body = JSON.stringify(body);
     }
 
+    return this.send(url, init);
+  }
+
+  /** Low-level call for composite tools: explicit path, query and JSON body. */
+  async requestRaw(params: {
+    method: HttpMethod;
+    path: string;
+    query?: Record<string, unknown>;
+    body?: unknown;
+  }): Promise<unknown> {
+    const query = new URLSearchParams();
+    for (const [name, value] of Object.entries(params.query ?? {})) {
+      if (value === undefined) continue;
+      query.set(name, encodeQueryValue(value));
+    }
+    const url = `${this.baseUrl}${params.path}${query.size > 0 ? `?${query}` : ''}`;
+
+    const init: RequestInit = { method: params.method, headers: this.baseHeaders() };
+    if (params.body !== undefined) {
+      init.headers = { ...init.headers, 'Content-Type': 'application/json' };
+      init.body = JSON.stringify(params.body);
+    }
     return this.send(url, init);
   }
 

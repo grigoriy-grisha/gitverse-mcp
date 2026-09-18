@@ -3,6 +3,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { vi, afterEach, describe, expect, it } from 'vitest';
 
 import { GitVerseClient } from '../src/client.js';
+import { compositeTools } from '../src/composite.js';
 import { toolSpecs } from '../src/generated/tools.js';
 import { createGitVerseServer, filterTools, PROFILES } from '../src/server.js';
 
@@ -36,14 +37,16 @@ async function connect(fakeResponses: Map<RegExp, unknown>) {
 }
 
 describe('gitverse MCP server', () => {
-  it('lists all 157 tools', async () => {
+  it('lists every generated and composite tool', async () => {
     const { mcpClient } = await connect(new Map());
     const { tools } = await mcpClient.listTools();
-    expect(tools).toHaveLength(toolSpecs.length);
+    expect(tools).toHaveLength(toolSpecs.length + compositeTools.length);
     const names = tools.map((t) => t.name).sort();
     expect(names).toContain('get_repos');
     expect(names).toContain('post_repos_pulls_comments');
     expect(names).toContain('get_assignments');
+    expect(names).toContain('approvePullRequest');
+    expect(names).toContain('addPullRequestComment');
   });
 
   it('annotates GET tools as read-only', async () => {

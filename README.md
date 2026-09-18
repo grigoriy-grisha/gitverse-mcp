@@ -85,6 +85,33 @@ npm install -g gitverse-mcp-server
 
 Приоритет фильтров: `GITVERSE_TOOLS` → `GITVERSE_PROFILE` → все тула; `GITVERSE_EXCLUDE_TOOLS` применяется поверх любого варианта.
 
+## Профиль `bitbucket` — семантические тула как в Bitbucket MCP
+
+```json
+{
+  "mcpServers": {
+    "gitverse": {
+      "command": "npx",
+      "args": ["-y", "gitverse-mcp-server"],
+      "env": {
+        "GITVERSE_TOKEN": "<ваш_токен>",
+        "GITVERSE_PROFILE": "bitbucket"
+      }
+    }
+  }
+}
+```
+
+25 тулов с привычными по Bitbucket MCP именами и семантикой:
+
+- **Репозитории**: `listRepositories` (свои или организации), `getRepository`.
+- **PR**: `getPullRequests` (+state), `createPullRequest`, `createDraftPullRequest`, `getPullRequest`, `updatePullRequest` (title/body/state/base + assignees/labels), `getPullRequestActivity` (timeline), `getPullRequestCommits`, `getPullRequestDiff` (файлы с патчами).
+- **Вердикты**: `approvePullRequest`, `unapprovePullRequest` (находит и удаляет ваше APPROVED-ревью), `requestChanges`, `removeChangeRequest` (перекрывает change request новым APPROVED-ревью), `declinePullRequest` (закрытие, опционально с комментарием).
+- **Комментарии**: `getPullRequestComments`, `addPullRequestComment` — общий или **инлайн** (`inline: {path, to}` — SHA коммита подставляется автоматически), `updatePullRequestComment`, `deletePullRequestComment`.
+- **CI (Pipelines → Actions)**: `listPipelineRuns` (фильтры status/branch/event), `getPipelineRun`, `runPipeline` (dispatch workflow на ветку/тег), `getPipelineSteps`, `getPipelineStep`, `getPipelineStepLogs`.
+
+Чего из набора Bitbucket MCP **нет и не может быть** в публичном API GitVerse: `mergePullRequest` (эндпоинта merge нет), `reviewers` при создании PR (только assignees), `publishDraftPullRequest` / `convertTodraft` (поле draft не переключается), `getPullRequestTasks` (тасков нет), `resolveComment` / `reopenComment`, `stopPipeline` (нет cancel), `getPullRequestStatuses` (нет commit statuses — заменяется `listPipelineRuns` по ветке), `getPullRequestDiffStat` / `getPullRequestPatch` (данные внутри `getPullRequestDiff`).
+
 ## Профиль `pr` — ревью и работа с pull request'ами
 
 ```json

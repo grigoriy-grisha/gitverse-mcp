@@ -1,8 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 
 import { GitVerseClient } from './client.js';
+import { compositeTools } from './composite.js';
 import { toolSpecs } from './generated/tools.js';
-import type { ToolSpec } from './types.js';
 import { SERVER_NAME, SERVER_VERSION } from './version.js';
 
 export const PROFILES = {
@@ -30,6 +31,33 @@ export const PROFILES = {
     'post_repos_issues_comments',
     'patch_repos_issues_comments',
   ],
+  bitbucket: [
+    'listRepositories',
+    'getRepository',
+    'getPullRequests',
+    'createPullRequest',
+    'getPullRequest',
+    'updatePullRequest',
+    'getPullRequestActivity',
+    'approvePullRequest',
+    'unapprovePullRequest',
+    'declinePullRequest',
+    'requestChanges',
+    'removeChangeRequest',
+    'createDraftPullRequest',
+    'getPullRequestComments',
+    'addPullRequestComment',
+    'updatePullRequestComment',
+    'deletePullRequestComment',
+    'getPullRequestDiff',
+    'getPullRequestCommits',
+    'listPipelineRuns',
+    'getPipelineRun',
+    'runPipeline',
+    'getPipelineSteps',
+    'getPipelineStep',
+    'getPipelineStepLogs',
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type ProfileName = keyof typeof PROFILES;
@@ -44,7 +72,11 @@ export interface ServerOptions extends ToolFilter {
   client: GitVerseClient;
 }
 
-export function filterTools(specs: readonly ToolSpec[], filter: ToolFilter): ToolSpec[] {
+interface NamedTool {
+  name: string;
+}
+
+function filterNamed<T extends NamedTool>(items: readonly T[], filter: ToolFilter): T[] {
   let allow: Set<string> | undefined;
   if (filter.include && filter.include.length > 0) {
     allow = new Set(filter.include);
@@ -61,29 +93,40 @@ export function filterTools(specs: readonly ToolSpec[], filter: ToolFilter): Too
     }
   }
   const deny = filter.exclude && filter.exclude.length > 0 ? new Set(filter.exclude) : undefined;
-  return specs.filter((spec) => (allow ? allow.has(spec.name) : true) && !(deny && deny.has(spec.name)));
+  return items.filter((item) => (allow ? allow.has(item.name) : true) && !(deny && deny.has(item.name)));
+}
+
+export function filterTools<T extends NamedTool>(items: readonly T[], filter: ToolFilter): T[] {
+  return filterNamed(items, filter);
 }
 
 export function createGitVerseServer(options: ServerOptions): McpServer {
   const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
-  const specs = filterTools(toolSpecs, options);
+  const specs = filterNamed(toolSpecs, options);
+  const composites = filterNamed(compositeTools, options);
 
-  for (const spec of specs) {
+  const register = (
+    name: string,
+    description: string,
+    readOnly: boolean,
+    schema: z.ZodObject<z.ZodRawShape>,
+    call: (args: Record<string, unknown>) => Promise<unknown>,
+  ) => {
     server.registerTool(
-      spec.name,
+      name,
       {
-        description: spec.description,
-        inputSchema: spec.schema.shape,
+        description,
+        inputSchema: schema.shape,
         annotations: {
-          readOnlyHint: spec.readOnly,
-          destructiveHint: !spec.readOnly,
-          idempotentHint: spec.readOnly,
+          readOnlyHint: readOnly,
+          destructiveHint: !readOnly,
+          idempotentHint: readOnly,
           openWorldHint: true,
         },
       },
       async (args: Record<string, unknown>) => {
         try {
-          const result = await options.client.request(spec, args ?? {});
+          const result = await call(args ?? {});
           return {
             content: [{ type: 'text', text: JSON.stringify(result ?? null, null, 2) }],
           };
@@ -96,6 +139,17 @@ export function createGitVerseServer(options: ServerOptions): McpServer {
           };
         }
       },
+    );
+  };
+
+  for (const spec of specs) {
+    register(spec.name, spec.description, spec.readOnly, spec.schema, (args) =>
+      options.client.request(spec, args),
+    );
+  }
+  for (const tool of composites) {
+    register(tool.name, tool.description, tool.readOnly, tool.schema, (args) =>
+      tool.handler(options.client, args),
     );
   }
 

@@ -1,12 +1,12 @@
 {
-  "name": "gitverse-mcp-server",
+  "name": "gitverse-mcp",
   "version": "1.0.0",
-  "description": "MCP server exposing Bitbucket-style tools for GitVerse: repositories, pull requests, reviews, comments and CI",
+  "description": "MCP server for GitVerse: repositories, pull requests, reviews, comments and CI",
   "type": "module",
   "license": "MIT",
-  "author": "grisha123",
+  "author": "grigoriy-grisha",
   "bin": {
-    "gitverse-mcp-server": "dist/index.js"
+    "gitverse-mcp": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -50,10 +50,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitverse.ru/grisha123/gitverse-mcp-server.git"
+    "url": "git+https://github.com/grigoriy-grisha/gitverse-mcp.git"
   },
   "bugs": {
-    "url": "https://gitverse.ru/grisha123/gitverse-mcp-server/issues"
+    "url": "https://github.com/grigoriy-grisha/gitverse-mcp/issues"
   },
-  "homepage": "https://gitverse.ru/grisha123/gitverse-mcp-server#readme"
+  "homepage": "https://github.com/grigoriy-grisha/gitverse-mcp#readme"
 }

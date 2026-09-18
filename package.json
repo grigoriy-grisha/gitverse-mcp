@@ -1,10 +1,13 @@
 {
-  "name": "gitverse-mcp",
+  "name": "@grigoriy-grisha/gitverse-mcp",
   "version": "1.0.0",
   "description": "MCP server for GitVerse: repositories, pull requests, reviews, comments and CI",
   "type": "module",
   "license": "MIT",
   "author": "grigoriy-grisha",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "gitverse-mcp": "dist/index.js"
   },

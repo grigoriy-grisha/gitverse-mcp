@@ -7,7 +7,7 @@ MCP-сервер (Model Context Protocol) для работы с GitVerse — р
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Node](https://img.shields.io/badge/node-%E2%89%A520-brightgreen.svg)
 ![MCP](https://img.shields.io/badge/Model_Context_Protocol-compatible-blueviolet)
-[![npm version](https://badge.fury.io/js/gitverse-mcp-server.svg)](https://www.npmjs.com/package/gitverse-mcp-server)
+[![npm version](https://badge.fury.io/js/%40grigoriy-grisha%2Fgitverse-mcp.svg)](https://www.npmjs.com/package/@grigoriy-grisha/gitverse-mcp)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-gitverse--mcp-blue.svg)](https://github.com/grigoriy-grisha/gitverse-mcp)
 
 ## ✨ Обзор
@@ -39,7 +39,7 @@ MCP-сервер (Model Context Protocol) для работы с GitVerse — р
 Запуск без глобальной установки:
 
 ```bash
-GITVERSE_TOKEN="ваш-токен" npx -y gitverse-mcp-server@latest
+GITVERSE_TOKEN="ваш-токен" npx -y @grigoriy-grisha/gitverse-mcp@latest
 ```
 
 ### Ручная установка
@@ -48,20 +48,20 @@ GITVERSE_TOKEN="ваш-токен" npx -y gitverse-mcp-server@latest
 
 ```bash
 # Глобально
-npm install -g gitverse-mcp-server
+npm install -g @grigoriy-grisha/gitverse-mcp
 
 # Или в проект
-npm install gitverse-mcp-server
+npm install @grigoriy-grisha/gitverse-mcp
 ```
 
 Затем запускайте:
 
 ```bash
 # Глобальная установка
-GITVERSE_TOKEN="ваш-токен" gitverse-mcp-server
+GITVERSE_TOKEN="ваш-токен" gitverse-mcp
 
 # Установка в проект
-GITVERSE_TOKEN="ваш-токен" npx gitverse-mcp-server
+GITVERSE_TOKEN="ваш-токен" npx @grigoriy-grisha/gitverse-mcp
 ```
 
 Требуется **Node.js 20 или выше**.
